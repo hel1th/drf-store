@@ -2,8 +2,8 @@ from .models import CartItem
 from django.core.exceptions import ValidationError
 
 
-def add_or_update_cart(user, product_id, quantity):
-    return CartItem.objects.add(user, product_id, quantity)
+def add_or_update_cart(user, product_id, quantity, update=False):
+    return CartItem.objects.add(user, product_id, quantity, update)
 
 
 def remove_from_cart(user, product_id):

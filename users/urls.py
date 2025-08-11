@@ -8,6 +8,5 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("balance/deposit/", DepositView.as_view(), name="deposit"),
+    # path("balance/withdraw/", WithdrawView.as_view(), name="withdraw"),
 ]
-
-

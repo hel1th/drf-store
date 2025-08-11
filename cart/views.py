@@ -1,8 +1,13 @@
 from .models import CartItem
 from .serializers import CartAddSerializer, CartUpdateSerializer, CartItemSerializer
-from .services import add_or_update_cart, remove_from_cart, get_cart, remove_product_from_cart
+from .services import (
+    add_or_update_cart,
+    remove_from_cart,
+    get_cart,
+    remove_product_from_cart,
+)
 from django.core.exceptions import ValidationError
-from rest_framework import generics, status
+from rest_framework import generics, status, views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -43,7 +48,10 @@ class CartItemUpdateView(generics.GenericAPIView):
 
         try:
             cart_item = add_or_update_cart(
-                user=self.request.user, product_id=product_id, quantity=quantity
+                user=self.request.user,
+                product_id=product_id,
+                quantity=quantity,
+                update=True,
             )
             return Response(
                 CartItemSerializer(cart_item).data, status=status.HTTP_200_OK
@@ -52,13 +60,15 @@ class CartItemUpdateView(generics.GenericAPIView):
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CartItemRemoveView(generics.GenericAPIView):
+class CartItemRemoveView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, product_id):
         success = remove_product_from_cart(request.user, product_id)
         if not success:
-            return Response({"detail": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
