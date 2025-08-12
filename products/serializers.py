@@ -11,7 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def validate_price(self, value):
         if value <= Decimal("0"):
-            raise serializers.ValidationError("Price must be grater than 0.")
+            raise serializers.ValidationError("Price must be greater than 0.")
         return value
 
     def validate_stock(self, value: int):

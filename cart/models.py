@@ -8,24 +8,35 @@ from users.models import User
 # Create your models here.
 class CartItemManager(models.Manager):
     @transaction.atomic
-    def add(self, user, product_id, quantity, update=False):
+    def add(self, user, product_id, quantity):
+        product = Product.objects.select_for_update().get(pk=product_id)
+        item, created = self.select_for_update().get_or_create(user=user, product=product)
+
+        if quantity <= 0:
+            raise ValidationError("Quantity must be positive.")
+        if created:
+            quantity -= 1
+        new_amount = item.quantity + quantity
+        if new_amount > product.stock:
+            raise ValidationError("Not enough stock.")
+        item.quantity = new_amount
+
+        item.save()
+        return item
+
+    @transaction.atomic
+    def update(self, user, product_id, quantity):
         product = Product.objects.select_for_update().get(pk=product_id)
         item, _ = self.select_for_update().get_or_create(user=user, product=product)
 
         if quantity <= 0:
             raise ValidationError("Quantity must be positive.")
 
-        if not update:
-            new_amount = item.quantity + quantity
-            if new_amount > product.stock:
-                raise ValidationError("Not enough stock.")
-            item.quantity = new_amount
-        else:
-            if quantity > product.stock:
-                raise ValidationError("Not enough stock.")
-            item.quantity = quantity
+        if quantity > product.stock:
+            raise ValidationError("Not enough stock.")
+        item.quantity = quantity
 
-        item.save()
+        item.save(update_fields=["quantity"])
         return item
 
 
@@ -40,4 +51,4 @@ class CartItem(models.Model):
         unique_together = ("user", "product")
 
     def __str__(self):
-        return f"{self.user} — {self.product.name} x{self.quantity}"
+        return f"{self.user} — {self.product.name} x {self.quantity}"

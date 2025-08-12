@@ -1,7 +1,7 @@
 from .models import CartItem
 from .serializers import CartAddSerializer, CartUpdateSerializer, CartItemSerializer
 from .services import (
-    add_or_update_cart,
+
     remove_from_cart,
     get_cart,
     remove_product_from_cart,
@@ -20,7 +20,7 @@ class CartItemAddView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            cart_item = add_or_update_cart(
+            cart_item = CartItem.objects.add(
                 user=self.request.user,
                 product_id=serializer.validated_data["product_id"],
                 quantity=serializer.validated_data["quantity"],
@@ -47,17 +47,17 @@ class CartItemUpdateView(generics.GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         try:
-            cart_item = add_or_update_cart(
+            cart_item = CartItem.objects.update(
                 user=self.request.user,
-                product_id=product_id,
-                quantity=quantity,
-                update=True,
+                product_id=serializer.validated_data["product_id"],
+                quantity=serializer.validated_data["quantity"],
             )
             return Response(
-                CartItemSerializer(cart_item).data, status=status.HTTP_200_OK
+                CartItemSerializer(cart_item).data, status=status.HTTP_201_CREATED
             )
         except ValidationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CartItemRemoveView(views.APIView):

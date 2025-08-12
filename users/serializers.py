@@ -41,7 +41,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["user", "balance"]
 
 
-
 class DepositSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=10, decimal_places=2)
 

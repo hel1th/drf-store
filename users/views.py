@@ -10,7 +10,6 @@ from .serializers import (
 from django.db.models import F
 
 
-# Create your views here.
 class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
@@ -39,8 +38,3 @@ class DepositView(generics.GenericAPIView):
         user.refresh_from_db()
 
         return Response(ProfileSerializer(user).data, status=status.HTTP_200_OK)
-
-
-# class WithdrawView(generics.GenericAPIView):
-#     permission_classes = [permissions.]
-    
